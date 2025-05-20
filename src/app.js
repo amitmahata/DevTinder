@@ -1,34 +1,34 @@
 const express = require('express');
-
+const connectDB = require("./config/database");
 const app = express();
+const User = require("./models/user");
 
-app.use("/hello", (req,res) => {
-    res.send('Hello devs!');
-})
+app.post("/signup", async (req, res) => {
+    const user = new User({
+        firstName: "Amit",
+        lastName: "Mahata",
+        emailId: "amitmahata@devtinder.com",
+        password: "amit@123"
+    });
 
-app.use("/express", (req,res) => {
-    res.send('Hello from Express!');
-})
-
-app.get("/user", (req, res, next) => {
-    console.log(req.query);
-    console.log(req.params);
-    console.log("First Response");
-    //res.send({firstName: "Amit", lastName: "Mahata"});
-    next();
-},
-    (req, res, next) => {
-        console.log("Second Response");
-        //res.send({ firstName: "Amit", lastName: "Mahata" });
-        next();
-    },
-    (req, res, next) => {
-        console.log("Third Response");
-        res.send({ firstName: "Amit", lastName: "Mahata" });
-        //next();
+    try {
+        await user.save();
+        res.send("User added successfully...");
     }
-);
-
-app.listen(2222, () => {
-    console.log('Server is successfully listening on port 2222...');
+    catch (err) {
+        console.log(err);
+        res.status(500).send("Error while adding user..." + err.message);
+    }
 });
+
+
+connectDB().then(() => {
+    console.log("MongoDB is successfully connected...");
+    app.listen(2222, () => {
+        console.log('Server is successfully listening on port 2222...');
+    });
+})
+    .catch((err) => {
+        console.log("MongoDB connection failed...");
+        console.log(err);
+    });
