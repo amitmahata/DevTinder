@@ -46,6 +46,49 @@ app.get("/feed", async (req, res) => {
     }
 });
 
+app.delete("/user", async (req, res) => {
+    const userId = req.body._id;
+    try {
+        const user = await User.findByIdAndDelete(userId);
+        if (!user) {
+            return res.status(404).send("User not found...");
+        }
+        res.send("User deleted successfully...");
+    }
+    catch (err) {
+        res.status(500).send("Error while deleting user..." + err.message);
+    }
+});
+
+app.patch("/user/:userId", async (req, res) => {
+    const userId = req.params?.userId;
+    const updateData = req.body;
+
+    try {
+        const ALLOWED_UPDATES = ["age", "gender", "photoUrl", "about", "skills", "password"];
+        const isValidOperation = Object.keys(updateData).every((update) =>
+            ALLOWED_UPDATES.includes(update)
+        );
+
+        if (!isValidOperation) {
+            throw new Error("Invalid updates...");
+        }
+
+        console.log(updateData?.skills);
+        if(updateData?.skills?.length > 10) {
+            throw new Error("Skills cannot be more than 10...");
+        }
+        const result = await User.findByIdAndUpdate(userId, updateData, {
+            returnDocument: 'after', // Return the updated document
+            runValidators: true, // Run validators on the update
+        });
+        console.log(result);
+        res.send("User updated successfully...");
+    }
+    catch (err) {
+        res.status(500).send("Error while updating user..." + err.message);
+    }
+});
 
 connectDB().then(() => {
     console.log("MongoDB is successfully connected...");
