@@ -14,6 +14,34 @@ const validateSignUpData = (req) => {
     }
 };
 
+const validateEditProfileData = (req) => {
+    const allowedEditFields = ["firstName",
+        "lastName",
+        "emailId",
+        "age",
+        "gender",
+        "photoUrl",
+        "about",
+        "skills"];
+    const isEditAllowed = Object.keys(req.body).every((update) =>
+        allowedEditFields.includes(update)
+    );
+
+    return isEditAllowed;
+};
+
+const validatePasswordChangeData = (req) => {
+    if(!req.body.oldPassword || !req.body.newPassword) {
+        throw new Error("Both old and new passwords are required.");
+    }
+
+    if(!validator.isStrongPassword(req.body.newPassword)) {
+        throw new Error("New password must be strong.");
+    }
+};
+
 module.exports = {
     validateSignUpData,
+    validateEditProfileData,
+    validatePasswordChangeData
 };
