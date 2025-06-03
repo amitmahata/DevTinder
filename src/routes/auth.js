@@ -36,9 +36,8 @@ authRouter.post("/signup", async (req, res) => {
 });
 
 authRouter.post("/login", async (req, res) => {
-    const { emailId, password } = req.body;
-
     try {
+        const { emailId, password } = req.body;
         // Find the user by emailId
         const user = await User.findOne({ emailId });
         if (!user) {
@@ -46,15 +45,15 @@ authRouter.post("/login", async (req, res) => {
         }
         // Compare the password with the hashed password
         const isPasswordValid = await user.validatePassword(password);
-      
-        if(isPasswordValid){
-        const token = await user.getJWT(); // Generate JWT token
-        console.log(token);
 
-        res.cookie("token", token, {expires: new Date(Date.now() + 24 * 60 * 60 * 1000)}); // Set a cookie with the user ID
-        res.send("Login successful");
+        if (isPasswordValid) {
+            const token = await user.getJWT(); // Generate JWT token
+            console.log(token);
+
+            res.cookie("token", token, { expires: new Date(Date.now() + 24 * 60 * 60 * 1000) }); // Set a cookie with the user ID
+            res.send(user);
         }
-        else{
+        else {
             throw new Error("Invalid password...");
         }
     }
@@ -67,7 +66,7 @@ authRouter.post("/login", async (req, res) => {
 authRouter.post("/logout", async (req, res) => {
     try {
         //res.clearCookie("token"); // Clear the cookie
-        res.cookie("token", "", {expires: new Date(Date.now() - 24 * 60 * 60 * 1000)}); // Set the cookie to expire immediately
+        res.cookie("token", "", { expires: new Date(Date.now() - 24 * 60 * 60 * 1000) }); // Set the cookie to expire immediately
         res.send("Logout successful");
     }
     catch (err) {
